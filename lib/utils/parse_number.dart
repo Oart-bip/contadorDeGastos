@@ -7,7 +7,7 @@ double? parseNumber(String text) {
   // com RegExp, definimos um padrão que a string digitada deverá ter ao ser verificada 
   final matches = regExp.allMatches(normalizedText).toList();
   if (matches.length != 1 || matches.first.group(0) != normalizedText) { // so aceita se existir um numero e ele corresponder ao texto inteiro
-    return null;
+    return null; 
   }
   return double.parse(matches.first.group(0)!); // converte o texto numerico encontrado para double
 
