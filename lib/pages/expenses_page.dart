@@ -25,6 +25,17 @@ class _ExpensesPageState extends State<ExpensesPage> {
     });
   }
 
+  double getTotalAmount() {
+    double total = 0;
+
+    // Percorre todos os gastos e acumula seus valores.
+    for (final expense in expenses) {
+      total += expense.amount;
+    }
+
+    return total;
+  }
+
   void addExpense() {
     final description = descriptionController.text.trim();
     final amount = parseNumber(amountController.text);
@@ -64,6 +75,8 @@ class _ExpensesPageState extends State<ExpensesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final totalAmount = getTotalAmount();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meus gastos'),
@@ -117,6 +130,11 @@ class _ExpensesPageState extends State<ExpensesPage> {
                 onPressed: addExpense,
                 child: const Text('Adicionar gasto'),
               ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Total: R\$ ${totalAmount.toStringAsFixed(2)}',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             Expanded(
