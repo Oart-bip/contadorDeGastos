@@ -4,6 +4,7 @@ import '../enums/category_type.dart';
 import '../models/expense.dart';
 import '../utils/parse_number.dart';
 import '../widgets/expense_item.dart';
+import 'category_history_page.dart';
 
 class ExpensesPage extends StatefulWidget {
   const ExpensesPage({super.key});
@@ -80,6 +81,22 @@ class _ExpensesPageState extends State<ExpensesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meus gastos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list_alt),
+            tooltip: 'Gastos por categoria',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return CategoryHistoryPage(expenses: expenses);
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -139,9 +156,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
             const SizedBox(height: 16),
             Expanded(
               child: expenses.isEmpty
-                  ? const Center(
-                      child: Text('Nenhum gasto cadastrado ainda.'),
-                    )
+                  ? const Center(child: Text('Nenhum gasto cadastrado ainda.'))
                   : ListView.builder(
                       itemCount: expenses.length,
                       itemBuilder: (context, index) {
