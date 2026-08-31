@@ -1,6 +1,5 @@
 # contadordegastos
 Ainda faltam:
-- Mostrar o total geral atualizado.
 - Criar a segunda tela de gastos por categoria.
 - Adicionar a navegação com Navigator.push.
 - Opcionalmente, mostrar subtotal e cores por categoria.
