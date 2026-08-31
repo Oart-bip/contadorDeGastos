@@ -1,96 +1,92 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // importa os widgets do flutter
+import '../enums/category_type.dart'; // importa as categorias do app
+import '../models/expense.dart'; // importa o modelo de gasto
+import '../utils/parse_number.dart'; // importa a conversao de texto para numero
+import '../widgets/expense_item.dart'; // importa o widget reutilizavel de gasto
+import 'category_history_page.dart'; // importa a tela de historico
 
-import '../enums/category_type.dart';
-import '../models/expense.dart';
-import '../utils/parse_number.dart';
-import '../widgets/expense_item.dart';
-import 'category_history_page.dart';
+class ExpensesPage extends StatefulWidget { // cria a tela principal do app
+  const ExpensesPage({super.key}); // cria o construtor da tela
 
-class ExpensesPage extends StatefulWidget {
-  const ExpensesPage({super.key});
-
-  @override
-  State<ExpensesPage> createState() => _ExpensesPageState();
+  @override // sobrescreve a criacao do estado da tela
+  State<ExpensesPage> createState() => _ExpensesPageState(); // liga a tela ao estado
 }
 
-class _ExpensesPageState extends State<ExpensesPage> {
-  final descriptionController = TextEditingController();
-  final amountController = TextEditingController();
+class _ExpensesPageState extends State<ExpensesPage> { // guarda dados que mudam na tela
+  final descriptionController = TextEditingController(); // controla o texto da descricao
+  final amountController = TextEditingController(); // controla o texto do valor
 
-  CategoryType selectedCategory = CategoryType.outros;
-  final List<Expense> expenses = [];
+  CategoryType selectedCategory = CategoryType.outros; // guarda a categoria selecionada
+  final List<Expense> expenses = []; // guarda todos os gastos cadastrados
 
-  void removeExpense(int index) {
-    setState(() {
-      expenses.removeAt(index);
+  void removeExpense(int index) { // remove um gasto pela posicao na lista
+    setState(() { // atualiza a tela depois da alteracao
+      expenses.removeAt(index); // remove o gasto da lista
     });
   }
 
-  double getTotalAmount() {
-    double total = 0;
+  double getTotalAmount() { // calcula o total de todos os gastos
+    double total = 0; // inicia o total em zero
 
-    // Percorre todos os gastos e acumula seus valores.
-    for (final expense in expenses) {
-      total += expense.amount;
+    for (final expense in expenses) { // percorre cada gasto cadastrado
+      total += expense.amount; // soma o valor do gasto ao total
     }
 
-    return total;
+    return total; // devolve o total calculado
   }
 
-  void addExpense() {
-    final description = descriptionController.text.trim();
-    final amount = parseNumber(amountController.text);
+  void addExpense() { // valida e adiciona um novo gasto
+    final description = descriptionController.text.trim(); // pega a descricao sem espacos extras
+    final amount = parseNumber(amountController.text); // converte o texto do valor para double
 
-    // Só cria o gasto quando descrição e valor são válidos.
-    if (description.isEmpty || amount == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (description.isEmpty || amount == null) { // verifica se descricao ou valor sao invalidos
+      ScaffoldMessenger.of(context).showSnackBar( // mostra um aviso na tela
         const SnackBar(
-          content: Text('Preencha uma descrição e um valor válido.'),
+          content: Text('Preencha uma descrição e um valor válido.'), // informa o erro ao usuario
         ),
       );
-      return;
+      return; // encerra a funcao sem cadastrar o gasto
     }
 
-    setState(() {
-      expenses.add(
+    setState(() { // atualiza a tela depois de cadastrar
+      expenses.add( // adiciona um novo objeto na lista
         Expense(
-          description: description,
-          amount: amount,
-          category: selectedCategory,
+          description: description, // envia a descricao para o gasto
+          amount: amount, // envia o valor numerico para o gasto
+          category: selectedCategory, // envia a categoria selecionada
         ),
       );
 
-      // Limpa os campos para o próximo cadastro.
-      descriptionController.clear();
-      amountController.clear();
-      selectedCategory = CategoryType.outros;
+      descriptionController.clear(); // limpa o campo de descricao
+      amountController.clear(); // limpa o campo de valor
+      selectedCategory = CategoryType.outros; // volta a categoria inicial
     });
   }
 
-  @override
-  void dispose() {
-    descriptionController.dispose();
-    amountController.dispose();
-    super.dispose();
+  @override // sobrescreve o descarte da tela
+  void dispose() { // libera recursos antes de fechar a pagina
+    descriptionController.dispose(); // libera o controller da descricao
+    amountController.dispose(); // libera o controller do valor
+    super.dispose(); // executa o descarte da classe pai
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final totalAmount = getTotalAmount();
+  @override // sobrescreve a montagem da tela
+  Widget build(BuildContext context) { // constroi a interface principal
+    final totalAmount = getTotalAmount(); // calcula o total antes de mostrar na tela
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meus gastos'),
-        actions: [
+    return Scaffold( // cria a estrutura principal da pagina
+      appBar: AppBar( // cria a barra superior
+        title: const Text('Meus gastos'), // mostra o titulo da tela
+        actions: [ // guarda os botoes da barra superior
           IconButton(
-            icon: const Icon(Icons.list_alt),
-            tooltip: 'Gastos por categoria',
-            onPressed: () {
-              Navigator.push(
-                context,
+            icon: const Icon(Icons.list_alt), // mostra o icone de historico
+            tooltip: 'Gastos por categoria', // mostra texto ao segurar o icone
+            onPressed: () { // executa ao tocar no icone
+              Navigator.push( // abre uma nova tela
+                context, // usa o contexto atual da pagina
                 MaterialPageRoute(
-                  builder: (context) {
-                    return CategoryHistoryPage(expenses: expenses);
+                  builder: (context) { // constroi a pagina de destino
+                    return CategoryHistoryPage(expenses: expenses); // envia a lista para o historico
                   },
                 ),
               );
@@ -98,73 +94,75 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: Padding( // adiciona espaco nas bordas da tela
+        padding: const EdgeInsets.all(16), // define o espaco de 16 pixels
+        child: Column( // organiza os widgets na vertical
           children: [
             TextField(
-              controller: descriptionController,
+              controller: descriptionController, // liga o campo ao controller da descricao
               decoration: const InputDecoration(
-                labelText: 'Descrição',
-                border: OutlineInputBorder(),
+                labelText: 'Descrição', // mostra o nome do campo
+                border: OutlineInputBorder(), // desenha a borda do campo
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 12), // cria espaco entre os campos
             TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
+              controller: amountController, // liga o campo ao controller do valor
+              keyboardType: TextInputType.number, // abre o teclado numerico
               decoration: const InputDecoration(
-                labelText: 'Valor',
-                hintText: 'Ex.: 25,90',
-                border: OutlineInputBorder(),
+                labelText: 'Valor', // mostra o nome do campo
+                hintText: 'Ex.: 25,90', // mostra um exemplo de preenchimento
+                border: OutlineInputBorder(), // desenha a borda do campo
               ),
             ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<CategoryType>(
-              value: selectedCategory,
+            const SizedBox(height: 12), // cria espaco antes da categoria
+            DropdownButtonFormField<CategoryType>( // cria o seletor de categoria
+              value: selectedCategory, // mostra a categoria selecionada
               decoration: const InputDecoration(
-                labelText: 'Categoria',
-                border: OutlineInputBorder(),
+                labelText: 'Categoria', // mostra o nome do seletor
+                border: OutlineInputBorder(), // desenha a borda do seletor
               ),
-              items: CategoryType.values.map((category) {
+              items: CategoryType.values.map((category) { // transforma cada enum em uma opcao
                 return DropdownMenuItem(
-                  value: category,
-                  child: Text(category.name),
+                  value: category, // define o valor da opcao
+                  child: Text(category.name), // mostra o nome da categoria
                 );
-              }).toList(),
-              onChanged: (category) {
-                if (category != null) {
-                  setState(() {
-                    selectedCategory = category;
+              }).toList(), // transforma as opcoes em lista
+              onChanged: (category) { // executa ao selecionar uma categoria
+                if (category != null) { // verifica se existe categoria escolhida
+                  setState(() { // atualiza a tela com a nova categoria
+                    selectedCategory = category; // salva a categoria selecionada
                   });
                 }
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 12), // cria espaco antes do botao
             SizedBox(
-              width: double.infinity,
+              width: double.infinity, // faz o botao ocupar toda a largura
               child: ElevatedButton(
-                onPressed: addExpense,
-                child: const Text('Adicionar gasto'),
+                onPressed: addExpense, // chama a funcao de cadastro
+                child: const Text('Adicionar gasto'), // mostra o texto do botao
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 16), // cria espaco antes do total
             Text(
-              'Total: R\$ ${totalAmount.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.titleLarge,
+              'Total: R\$ ${totalAmount.toStringAsFixed(2)}', // mostra o total com duas casas decimais
+              style: Theme.of(context).textTheme.titleLarge, // aplica um estilo maior ao texto
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: expenses.isEmpty
-                  ? const Center(child: Text('Nenhum gasto cadastrado ainda.'))
+            const SizedBox(height: 16), // cria espaco antes da lista
+            Expanded( // ocupa o espaco restante da tela
+              child: expenses.isEmpty // verifica se existem gastos cadastrados
+                  ? const Center(
+                      child: Text('Nenhum gasto cadastrado ainda.'), // mostra aviso se a lista estiver vazia
+                    )
                   : ListView.builder(
-                      itemCount: expenses.length,
-                      itemBuilder: (context, index) {
-                        final expense = expenses[index];
+                      itemCount: expenses.length, // define quantos gastos serao exibidos
+                      itemBuilder: (context, index) { // monta cada item da lista
+                        final expense = expenses[index]; // pega o gasto da posicao atual
 
                         return ExpenseItem(
-                          expense: expense,
-                          onDelete: () => removeExpense(index),
+                          expense: expense, // envia o gasto para o widget reutilizavel
+                          onDelete: () => removeExpense(index), // remove o gasto ao tocar na lixeira
                         );
                       },
                     ),
