@@ -1,83 +1,84 @@
-import 'package:flutter/material.dart'; // importa os widgets do flutter
-import '../enums/category_type.dart'; // importa as categorias do app
-import '../models/expense.dart'; // importa o modelo de gasto
+import 'package:flutter/material.dart';
 
-class CategoryHistoryPage extends StatelessWidget { // cria a tela de gastos por categoria
-  final List<Expense> expenses; // recebe a lista de gastos cadastrados
+import '../enums/category_type.dart';
+import '../models/expense.dart';
+
+class CategoryHistoryPage extends StatelessWidget {
+  final List<Expense> expenses; // recebe a lista cadastrada na tela principal
 
   const CategoryHistoryPage({
-    super.key, // envia a chave para o widget pai
-    required this.expenses, // exige a lista de gastos ao abrir a tela
+    super.key,
+    required this.expenses,
   });
 
-  List<Expense> getExpensesByCategory(CategoryType category) { // filtra gastos de uma categoria
-    final categoryExpenses = <Expense>[]; // cria uma lista vazia para a categoria
+  List<Expense> getExpensesByCategory(CategoryType category) { // filtra somente gastos da categoria recebida
+    final categoryExpenses = <Expense>[];
 
-    for (final expense in expenses) { // percorre todos os gastos cadastrados
-      if (expense.category == category) { // verifica se o gasto pertence a categoria
-        categoryExpenses.add(expense); // adiciona o gasto na lista da categoria
+    for (final expense in expenses) {
+      if (expense.category == category) {
+        categoryExpenses.add(expense);
       }
     }
 
-    return categoryExpenses; // devolve os gastos filtrados
+    return categoryExpenses;
   }
 
-  double getCategoryTotal(List<Expense> categoryExpenses) { // calcula o subtotal da categoria
-    double total = 0; // inicia o total em zero
+  double getCategoryTotal(List<Expense> categoryExpenses) { // soma os valores de uma categoria
+    double total = 0;
 
-    for (final expense in categoryExpenses) { // percorre os gastos da categoria
-      total += expense.amount; // soma o valor do gasto ao subtotal
+    for (final expense in categoryExpenses) {
+      total += expense.amount;
     }
 
-    return total; // devolve o subtotal calculado
+    return total;
   }
 
-  String getCategoryName(CategoryType category) { // transforma o enum em texto para a tela
-    switch (category) { // verifica qual categoria foi recebida
+  String getCategoryName(CategoryType category) { // transforma o enum em um nome para exibir
+    switch (category) {
       case CategoryType.alimentacao:
-        return 'Alimentação'; // devolve o nome da alimentacao
+        return 'Alimentação';
       case CategoryType.transporte:
-        return 'Transporte'; // devolve o nome do transporte
+        return 'Transporte';
       case CategoryType.lazer:
-        return 'Lazer'; // devolve o nome do lazer
+        return 'Lazer';
       case CategoryType.outros:
-        return 'Outros'; // devolve o nome de outros
+        return 'Outros';
     }
   }
 
-  @override // sobrescreve o metodo de montagem da tela
-  Widget build(BuildContext context) { // constroi a interface da pagina
-    return Scaffold( // cria a estrutura principal da tela
-      appBar: AppBar( // cria a barra superior
-        title: const Text('Gastos por categoria'), // mostra o titulo da pagina
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gastos por categoria'),
       ),
-      body: ListView.builder( // cria uma lista com as categorias
-        padding: const EdgeInsets.all(16), // adiciona espaco nas bordas
-        itemCount: CategoryType.values.length, // define a quantidade de categorias
-        itemBuilder: (context, index) { // monta cada categoria da lista
-          final category = CategoryType.values[index]; // pega a categoria da vez
-          final categoryExpenses = getExpensesByCategory(category); // filtra seus gastos
+      body: ListView.builder( // cria uma secao para cada categoria do enum
+        padding: const EdgeInsets.all(16),
+        itemCount: CategoryType.values.length,
+        itemBuilder: (context, index) {
+          final category = CategoryType.values[index];
+          final categoryExpenses = getExpensesByCategory(category); // busca os gastos da categoria atual
           final categoryTotal = getCategoryTotal(categoryExpenses); // calcula seu subtotal
 
-          return ExpansionTile( // cria um item que pode abrir e fechar
-            title: Text(getCategoryName(category)), // mostra o nome da categoria
-            subtitle: Text( // mostra uma informacao abaixo do titulo
-              'Subtotal: R\$ ${categoryTotal.toStringAsFixed(2)}', // formata o subtotal
+          return ExpansionTile( // permite abrir e fechar a lista de gastos
+            title: Text(getCategoryName(category)),
+            subtitle: Text(
+              'Subtotal: R\$ ${categoryTotal.toStringAsFixed(2)}', // mostra o subtotal com duas casas decimais
             ),
-            children: categoryExpenses.isEmpty // verifica se a categoria esta vazia
+            children: categoryExpenses.isEmpty
                 ? const [
                     ListTile(
-                      title: Text('Nenhum gasto nesta categoria.'), // avisa que nao ha gastos
+                      title: Text('Nenhum gasto nesta categoria.'),
                     ),
                   ]
-                : categoryExpenses.map((expense) { // transforma cada gasto em um item visual
-                    return ListTile( // cria a linha de um gasto
-                      title: Text(expense.description), // mostra a descricao do gasto
-                      trailing: Text( // posiciona o valor no fim da linha
-                        'R\$ ${expense.amount.toStringAsFixed(2)}', // formata o valor
+                : categoryExpenses.map((expense) { // transforma cada gasto em uma linha visual
+                    return ListTile(
+                      title: Text(expense.description),
+                      trailing: Text(
+                        'R\$ ${expense.amount.toStringAsFixed(2)}',
                       ),
                     );
-                  }).toList(), // transforma os itens em lista para o expansiontile
+                  }).toList(),
           );
         },
       ),

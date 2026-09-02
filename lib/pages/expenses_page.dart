@@ -1,92 +1,93 @@
-import 'package:flutter/material.dart'; // importa os widgets do flutter
-import '../enums/category_type.dart'; // importa as categorias do app
-import '../models/expense.dart'; // importa o modelo de gasto
-import '../utils/parse_number.dart'; // importa a conversao de texto para numero
-import '../widgets/expense_item.dart'; // importa o widget reutilizavel de gasto
-import 'category_history_page.dart'; // importa a tela de historico
+import 'package:flutter/material.dart';
 
-class ExpensesPage extends StatefulWidget { // cria a tela principal do app
-  const ExpensesPage({super.key}); // cria o construtor da tela
+import '../enums/category_type.dart';
+import '../models/expense.dart';
+import '../utils/parse_number.dart';
+import '../widgets/expense_item.dart';
+import 'category_history_page.dart';
 
-  @override // sobrescreve a criacao do estado da tela
-  State<ExpensesPage> createState() => _ExpensesPageState(); // liga a tela ao estado
+class ExpensesPage extends StatefulWidget {
+  const ExpensesPage({super.key});
+
+  @override
+  State<ExpensesPage> createState() => _ExpensesPageState();
 }
 
-class _ExpensesPageState extends State<ExpensesPage> { // guarda dados que mudam na tela
-  final descriptionController = TextEditingController(); // controla o texto da descricao
-  final amountController = TextEditingController(); // controla o texto do valor
+class _ExpensesPageState extends State<ExpensesPage> {
+  final descriptionController = TextEditingController(); // le o texto digitado na descricao
+  final amountController = TextEditingController(); // le o texto digitado no valor
 
-  CategoryType selectedCategory = CategoryType.outros; // guarda a categoria selecionada
-  final List<Expense> expenses = []; // guarda todos os gastos cadastrados
+  CategoryType selectedCategory = CategoryType.outros; // guarda a categoria escolhida
+  final List<Expense> expenses = []; // guarda os gastos cadastrados
 
-  void removeExpense(int index) { // remove um gasto pela posicao na lista
-    setState(() { // atualiza a tela depois da alteracao
-      expenses.removeAt(index); // remove o gasto da lista
+  void removeExpense(int index) { // remove um gasto e atualiza a tela
+    setState(() {
+      expenses.removeAt(index);
     });
   }
 
-  double getTotalAmount() { // calcula o total de todos os gastos
-    double total = 0; // inicia o total em zero
+  double getTotalAmount() { // percorre a lista e calcula o total geral
+    double total = 0;
 
-    for (final expense in expenses) { // percorre cada gasto cadastrado
-      total += expense.amount; // soma o valor do gasto ao total
+    for (final expense in expenses) {
+      total += expense.amount; // soma o valor de cada gasto
     }
 
-    return total; // devolve o total calculado
+    return total;
   }
 
-  void addExpense() { // valida e adiciona um novo gasto
-    final description = descriptionController.text.trim(); // pega a descricao sem espacos extras
+  void addExpense() { // valida os campos, cria e adiciona um novo gasto
+    final description = descriptionController.text.trim(); // remove espacos extras da descricao
     final amount = parseNumber(amountController.text); // converte o texto do valor para double
 
-    if (description.isEmpty || amount == null) { // verifica se descricao ou valor sao invalidos
-      ScaffoldMessenger.of(context).showSnackBar( // mostra um aviso na tela
+    if (description.isEmpty || amount == null) { // impede cadastro com dados invalidos
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Preencha uma descrição e um valor válido.'), // informa o erro ao usuario
+          content: Text('Preencha uma descrição e um valor válido.'),
         ),
       );
-      return; // encerra a funcao sem cadastrar o gasto
+      return;
     }
 
-    setState(() { // atualiza a tela depois de cadastrar
-      expenses.add( // adiciona um novo objeto na lista
+    setState(() { // atualiza a tela depois de mudar a lista
+      expenses.add(
         Expense(
-          description: description, // envia a descricao para o gasto
-          amount: amount, // envia o valor numerico para o gasto
-          category: selectedCategory, // envia a categoria selecionada
+          description: description,
+          amount: amount,
+          category: selectedCategory,
         ),
       );
 
-      descriptionController.clear(); // limpa o campo de descricao
-      amountController.clear(); // limpa o campo de valor
-      selectedCategory = CategoryType.outros; // volta a categoria inicial
+      descriptionController.clear(); // limpa os campos para o proximo cadastro
+      amountController.clear();
+      selectedCategory = CategoryType.outros;
     });
   }
 
-  @override // sobrescreve o descarte da tela
-  void dispose() { // libera recursos antes de fechar a pagina
-    descriptionController.dispose(); // libera o controller da descricao
-    amountController.dispose(); // libera o controller do valor
-    super.dispose(); // executa o descarte da classe pai
+  @override
+  void dispose() { // libera os controllers ao sair da tela
+    descriptionController.dispose();
+    amountController.dispose();
+    super.dispose();
   }
 
-  @override // sobrescreve a montagem da tela
-  Widget build(BuildContext context) { // constroi a interface principal
-    final totalAmount = getTotalAmount(); // calcula o total antes de mostrar na tela
+  @override
+  Widget build(BuildContext context) {
+    final totalAmount = getTotalAmount(); // calcula o total sempre que a tela atualiza
 
-    return Scaffold( // cria a estrutura principal da pagina
-      appBar: AppBar( // cria a barra superior
-        title: const Text('Meus gastos'), // mostra o titulo da tela
-        actions: [ // guarda os botoes da barra superior
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Meus gastos'),
+        actions: [
           IconButton(
-            icon: const Icon(Icons.list_alt), // mostra o icone de historico
-            tooltip: 'Gastos por categoria', // mostra texto ao segurar o icone
-            onPressed: () { // executa ao tocar no icone
-              Navigator.push( // abre uma nova tela
-                context, // usa o contexto atual da pagina
+            icon: const Icon(Icons.list_alt),
+            tooltip: 'Gastos por categoria',
+            onPressed: () { // abre a tela de historico enviando a lista atual
+              Navigator.push(
+                context,
                 MaterialPageRoute(
-                  builder: (context) { // constroi a pagina de destino
-                    return CategoryHistoryPage(expenses: expenses); // envia a lista para o historico
+                  builder: (context) {
+                    return CategoryHistoryPage(expenses: expenses);
                   },
                 ),
               );
@@ -94,75 +95,75 @@ class _ExpensesPageState extends State<ExpensesPage> { // guarda dados que mudam
           ),
         ],
       ),
-      body: Padding( // adiciona espaco nas bordas da tela
-        padding: const EdgeInsets.all(16), // define o espaco de 16 pixels
-        child: Column( // organiza os widgets na vertical
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
             TextField(
-              controller: descriptionController, // liga o campo ao controller da descricao
+              controller: descriptionController,
               decoration: const InputDecoration(
-                labelText: 'Descrição', // mostra o nome do campo
-                border: OutlineInputBorder(), // desenha a borda do campo
+                labelText: 'Descrição',
+                border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 12), // cria espaco entre os campos
+            const SizedBox(height: 12),
             TextField(
-              controller: amountController, // liga o campo ao controller do valor
-              keyboardType: TextInputType.number, // abre o teclado numerico
+              controller: amountController,
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Valor', // mostra o nome do campo
-                hintText: 'Ex.: 25,90', // mostra um exemplo de preenchimento
-                border: OutlineInputBorder(), // desenha a borda do campo
+                labelText: 'Valor',
+                hintText: 'Ex.: 25,90',
+                border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 12), // cria espaco antes da categoria
-            DropdownButtonFormField<CategoryType>( // cria o seletor de categoria
-              value: selectedCategory, // mostra a categoria selecionada
+            const SizedBox(height: 12),
+            DropdownButtonFormField<CategoryType>(
+              value: selectedCategory,
               decoration: const InputDecoration(
-                labelText: 'Categoria', // mostra o nome do seletor
-                border: OutlineInputBorder(), // desenha a borda do seletor
+                labelText: 'Categoria',
+                border: OutlineInputBorder(),
               ),
-              items: CategoryType.values.map((category) { // transforma cada enum em uma opcao
+              items: CategoryType.values.map((category) { // cria uma opcao para cada valor do enum
                 return DropdownMenuItem(
-                  value: category, // define o valor da opcao
-                  child: Text(category.name), // mostra o nome da categoria
+                  value: category,
+                  child: Text(category.name),
                 );
-              }).toList(), // transforma as opcoes em lista
-              onChanged: (category) { // executa ao selecionar uma categoria
-                if (category != null) { // verifica se existe categoria escolhida
-                  setState(() { // atualiza a tela com a nova categoria
-                    selectedCategory = category; // salva a categoria selecionada
+              }).toList(),
+              onChanged: (category) {
+                if (category != null) {
+                  setState(() { // atualiza a categoria selecionada
+                    selectedCategory = category;
                   });
                 }
               },
             ),
-            const SizedBox(height: 12), // cria espaco antes do botao
+            const SizedBox(height: 12),
             SizedBox(
-              width: double.infinity, // faz o botao ocupar toda a largura
+              width: double.infinity,
               child: ElevatedButton(
-                onPressed: addExpense, // chama a funcao de cadastro
-                child: const Text('Adicionar gasto'), // mostra o texto do botao
+                onPressed: addExpense, // chama a funcao que cadastra o gasto
+                child: const Text('Adicionar gasto'),
               ),
             ),
-            const SizedBox(height: 16), // cria espaco antes do total
+            const SizedBox(height: 16),
             Text(
               'Total: R\$ ${totalAmount.toStringAsFixed(2)}', // mostra o total com duas casas decimais
-              style: Theme.of(context).textTheme.titleLarge, // aplica um estilo maior ao texto
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16), // cria espaco antes da lista
-            Expanded( // ocupa o espaco restante da tela
-              child: expenses.isEmpty // verifica se existem gastos cadastrados
+            const SizedBox(height: 16),
+            Expanded(
+              child: expenses.isEmpty
                   ? const Center(
-                      child: Text('Nenhum gasto cadastrado ainda.'), // mostra aviso se a lista estiver vazia
+                      child: Text('Nenhum gasto cadastrado ainda.'),
                     )
-                  : ListView.builder(
-                      itemCount: expenses.length, // define quantos gastos serao exibidos
-                      itemBuilder: (context, index) { // monta cada item da lista
-                        final expense = expenses[index]; // pega o gasto da posicao atual
+                  : ListView.builder( // cria um item visual para cada gasto da lista
+                      itemCount: expenses.length,
+                      itemBuilder: (context, index) {
+                        final expense = expenses[index];
 
                         return ExpenseItem(
-                          expense: expense, // envia o gasto para o widget reutilizavel
-                          onDelete: () => removeExpense(index), // remove o gasto ao tocar na lixeira
+                          expense: expense,
+                          onDelete: () => removeExpense(index), // envia a acao de exclusao ao widget
                         );
                       },
                     ),
